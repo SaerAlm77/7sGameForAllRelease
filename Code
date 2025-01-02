@@ -413,9 +413,202 @@ SpeedButton.MouseButton1Click:Connect(function()
 	isDoubleSpeed = not isDoubleSpeed
 end)
 
+local NoClip = Instance.new("TextButton")
+NoClip.Size = UDim2.new(0.2, 0, 0.1, 0)
+NoClip.Position = UDim2.new(0, 0, 0.63, 0) -- Position it under the underline
+NoClip.AnchorPoint = Vector2.new(0, 0)
+NoClip.BackgroundTransparency = 1
+NoClip.Text = "NoClip"
+NoClip.TextColor3 = Color3.fromRGB(72, 22, 198)
+NoClip.Font = Enum.Font.Merriweather
+NoClip.TextSize = 25
+NoClip.Parent = Frame
+
+local ClipStroke = Instance.new("UIStroke")
+ClipStroke.Parent = NoClip
+ClipStroke.Color = Color3.fromRGB(0, 0, 0)
+ClipStroke.Enabled = false
+
+local Player = game:GetService("Players").LocalPlayer --Sets up variable for the Player
+local RunService = game:GetService("RunService") --Sets up variable for the RunService
+
+local isnoclipping = false --Sets the no-clip to initialy false
+
+NoClip.MouseButton1Click:Connect(function()
+	if isnoclipping== true then
+		isnoclipping=false
+		ClipStroke.Enabled = false --Changes the text to OFF
+	else	
+		isnoclipping=true
+		ClipStroke.Enabled = true
+	end
+end)
+
+RunService.Stepped:Connect(function()
+	if Player.Character then
+		if isnoclipping == true then
+			for i,v in pairs(Player.Character:GetDescendants()) do
+				if v:IsA("BasePart") then
+					v.CanCollide = false
+				end
+			end
+		end	
+	end
+end)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local ESPEnabled = false
+local ESPMarkers = {}
+local Highlights = {}
+
+local ESP = Instance.new("TextButton")
+ESP.Size = UDim2.new(0.2, 0, 0.1, 0)
+ESP.Position = UDim2.new(0.5, 0, 0.63, 0) -- Position it under the underline in the middle
+ESP.AnchorPoint = Vector2.new(0.5, 0)
+ESP.BackgroundTransparency = 1
+ESP.Text = "ESP"
+ESP.TextColor3 = Color3.fromRGB(72, 22, 198)
+ESP.Font = Enum.Font.Merriweather
+ESP.TextSize = 26
+ESP.Parent = Frame
+
+local ESPStroke = Instance.new("UIStroke")
+ESPStroke.Parent = ESP
+ESPStroke.Color = Color3.fromRGB(0, 0, 0)
+ESPStroke.Enabled = false
+
+local function createESPMarker(player)
+	local marker = Instance.new("BillboardGui")
+	marker.Size = UDim2.new(1, 0, 1, 0)
+	marker.Adornee = player.Character:WaitForChild("Head")
+	marker.AlwaysOnTop = true
+	marker.MaxDistance = 999
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, 0, 1, 0)
+	label.BackgroundTransparency = 1
+	label.Text = player.Name
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.TextStrokeTransparency = 0.5
+	label.Parent = marker
+
+	marker.Parent = player.Character.Head
+	return marker
+end
+
+local function createHighlight(player)
+	local highlight = Instance.new("Highlight")
+	highlight.Adornee = player.Character
+	highlight.FillColor = Color3.new(1, 0, 0) -- Change to desired highlight color
+	highlight.FillTransparency = 0.5 -- Adjust transparency as needed
+	highlight.Parent = player.Character
+	return highlight
+end
+
+local function toggleESP()
+	ESPEnabled = not ESPEnabled
+
+	if ESPEnabled then
+		for _, player in ipairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+				local marker = createESPMarker(player)
+				ESPMarkers[player.UserId] = marker
+				local highlight = createHighlight(player)
+				Highlights[player.UserId] = highlight
+			end
+		end
+	else
+		for _, marker in pairs(ESPMarkers) do
+			marker:Destroy()
+		end
+		ESPMarkers = {}
+
+		for _, highlight in pairs(Highlights) do
+			highlight:Destroy()
+		end
+		Highlights = {}
+	end
+end
+
+ESP.MouseButton1Click:Connect(function()
+	ESPStroke.Enabled = not ESPStroke.Enabled
+	toggleESP()
+end)
+
+-- Clean up ESP markers and highlights when the player leaves
+LocalPlayer.CharacterRemoving:Connect(function()
+	for _, marker in pairs(ESPMarkers) do
+		marker:Destroy()
+	end
+	ESPMarkers = {}
+
+	for _, highlight in pairs(Highlights) do
+		highlight:Destroy()
+	end
+	Highlights = {}
+end)
+
+-- Update ESP markers and highlights when players join or leave
+Players.PlayerAdded:Connect(function(player)
+	if ESPEnabled and player ~= LocalPlayer then
+		player.CharacterAdded:Connect(function()
+			if player.Character and player.Character:FindFirstChild("Head") then
+				createESPMarker(player)
+				createHighlight(player)
+			end
+		end)
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+	if ESPMarkers[player.UserId] then
+		ESPMarkers[player.UserId]:Destroy()
+		ESPMarkers[player.UserId] = nil
+	end
+	if Highlights[player.UserId] then
+		Highlights[player.UserId]:Destroy()
+		Highlights[player.UserId] = nil
+	end
+end)
+
+local FalseCanTouch = Instance.new("TextButton")
+FalseCanTouch.Size = UDim2.new(0.2, 0, 0.1, 0)
+FalseCanTouch.Position = UDim2.new(0.90, 0, 0.63, 0) -- Position it under the underline in the middle
+FalseCanTouch.AnchorPoint = Vector2.new(0.5, 0)
+FalseCanTouch.BackgroundTransparency = 1
+FalseCanTouch.Text = "FalseCanTouch"
+FalseCanTouch.TextColor3 = Color3.fromRGB(72, 22, 198)
+FalseCanTouch.Font = Enum.Font.Merriweather
+FalseCanTouch.TextSize = 26
+FalseCanTouch.Parent = Frame
+
+local FalseCanTouchStroke = Instance.new("UIStroke")
+FalseCanTouchStroke.Parent = FalseCanTouch
+FalseCanTouchStroke.Color = Color3.fromRGB(0, 0, 0)
+FalseCanTouchStroke.Enabled = false
+
+local canTouchEnabled = true -- Track the state of CanTouch
+
+FalseCanTouch.MouseButton1Click:Connect(function()
+	canTouchEnabled = not canTouchEnabled -- Toggle the state
+	FalseCanTouchStroke.Enabled = not FalseCanTouchStroke.Enabled -- Toggle the stroke visibility
+
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player.Character then
+			for _, part in ipairs(player.Character:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.CanTouch = canTouchEnabled -- Set CanTouch based on the current state
+					print("Parts, Can touch:", canTouchEnabled) -- Print the current state
+				end
+			end
+		end
+	end
+end)
+
 local BUnderline = Instance.new("ImageLabel")
 BUnderline.Position = UDim2.fromScale(0.5, 0.75) 
-BUnderline.AnchorPoint = Vector2.new(0.5, 0) 
+BUnderline.AnchorPoint = Vector2.new(0.5, 0)
 BUnderline.Size = UDim2.fromScale(0.8, 0.1)
 BUnderline.ImageColor3 = Color3.fromRGB(72, 22, 198)
 BUnderline.BackgroundTransparency = 1
@@ -541,4 +734,3 @@ UserInputService.InputChanged:Connect(function(input)
 		Frame.Position = UDim2.new(startFramePos.X.Scale, startFramePos.X.Offset + delta.X, startFramePos.Y.Scale, startFramePos.Y.Offset + delta.Y)
 	end
 end)
-
