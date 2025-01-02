@@ -1,0 +1,544 @@
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local Exploit = Instance.new("ScreenGui")
+Exploit.Name = "Exploit"
+Exploit.Parent = PlayerGui
+Exploit.IgnoreGuiInset = true
+Exploit.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Exploit.ResetOnSpawn = true
+
+local Frame = Instance.new("Frame")
+Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+Frame.Position = UDim2.fromScale(0.5, 1.5) -- Start position
+Frame.Size = UDim2.fromScale(0.3, 0.3)
+Frame.Parent = Exploit
+
+local UiStroke = Instance.new("UIStroke")
+UiStroke.Parent = Frame
+UiStroke.Color = Color3.fromRGB(72, 22, 198)
+
+local Title = Instance.new("TextLabel")
+Title.Position = UDim2.fromScale(0.5, 0)
+Title.AnchorPoint = Vector2.new(0.5, 0)
+Title.Size = UDim2.fromScale(1, 0.1)
+Title.BackgroundTransparency = 1
+Title.TextScaled = true
+Title.TextColor3 = Color3.fromRGB(72, 22, 198)
+Title.Font = Enum.Font.Merriweather
+Title.Text = "Exploit Detected"
+Title.Parent = Frame
+
+local Underline = Instance.new("ImageLabel")
+Underline.Position = UDim2.fromScale(0.5, 0.1) 
+Underline.AnchorPoint = Vector2.new(0.5, 0) 
+Underline.Size = UDim2.fromScale(0.8, 0.1)
+Underline.ImageColor3 = Color3.fromRGB(72, 22, 198)
+Underline.BackgroundTransparency = 1
+Underline.Image = "rbxassetid://77874090896086"
+Underline.Parent = Frame
+
+local Exit = Instance.new("TextButton")
+Exit.Size = UDim2.new(0.1, 0, 0.1, 0)
+Exit.Position = UDim2.new(0.5, 0, 0.1, 0)
+Exit.AnchorPoint = Vector2.new(0.5, 0)
+Exit.BackgroundTransparency = 1 
+Exit.Text = "Close"
+Exit.TextColor3 = Color3.fromRGB(72, 22, 198)
+Exit.Font = Enum.Font.Merriweather
+Exit.TextScaled = true
+Exit.Parent = Frame
+
+-- Create the Fly button
+local onof = Instance.new("TextButton")
+onof.Size = UDim2.new(0.2, 0, 0.1, 0)
+onof.Position = UDim2.new(0, 0, 0.2, 0) -- Position it under the underline
+onof.AnchorPoint = Vector2.new(0, 0)
+onof.BackgroundTransparency = 1
+onof.Text = "Fly"
+onof.TextColor3 = Color3.fromRGB(72, 22, 198)
+onof.Font = Enum.Font.Merriweather
+onof.TextScaled = true
+onof.Parent = Frame
+
+speeds = 1 
+
+local speaker = game:GetService("Players").LocalPlayer 
+
+local chr = game.Players.LocalPlayer.Character
+local hum = chr and chr:FindFirstChildWhichIsA("Humanoid") 
+
+nowe = false 
+
+local TextStroke = Instance.new("UIStroke")
+TextStroke.Parent = onof
+TextStroke.Color = Color3.fromRGB(0, 0, 0)
+TextStroke.Enabled = false
+
+onof.MouseButton1Down:connect(function() 
+	TextStroke.Enabled = false
+	if nowe == true then
+		nowe = false 
+
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Running,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics,true)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming,true)
+		speaker.Character.Humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+	else 
+		nowe = true
+		TextStroke.Enabled = true
+
+
+		for i = 1, speeds do
+			spawn(function() 
+
+				local hb = game:GetService("RunService").Heartbeat
+
+
+				tpwalking = true
+				local chr = game.Players.LocalPlayer.Character
+				local hum = chr and chr:FindFirstChildWhichIsA("Humanoid")
+				while tpwalking and hb:Wait() and chr and hum and hum.Parent do
+					if hum.MoveDirection.Magnitude > 0 then
+						chr:TranslateBy(hum.MoveDirection)
+					end
+				end 
+
+			end)
+		end
+		game.Players.LocalPlayer.Character.Animate.Disabled = true
+		local Char = game.Players.LocalPlayer.Character
+		local Hum = Char:FindFirstChildOfClass("Humanoid") or Char:FindFirstChildOfClass("AnimationController") 
+
+		for i,v in next, Hum:GetPlayingAnimationTracks() do
+			v:AdjustSpeed(0)
+		end
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Running,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics,false)
+		speaker.Character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming,false)
+		speaker.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Swimming)
+	end
+
+
+
+
+	if game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid").RigType == Enum.HumanoidRigType.R6 then
+
+
+
+		local plr = game.Players.LocalPlayer
+		local torso = plr.Character.Torso
+		local flying = true
+		local deb = true
+		local ctrl = {f = 0, b = 0, l = 0, r = 0}
+		local lastctrl = {f = 0, b = 0, l = 0, r = 0}
+		local maxspeed = 50
+		local speed = 0
+
+
+		local bg = Instance.new("BodyGyro", torso)
+		bg.P = 9e4
+		bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+		bg.cframe = torso.CFrame
+		local bv = Instance.new("BodyVelocity", torso)
+		bv.velocity = Vector3.new(0,0.1,0)
+		bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+		if nowe == true then
+			plr.Character.Humanoid.PlatformStand = true
+		end
+		while nowe == true or game:GetService("Players").LocalPlayer.Character.Humanoid.Health == 0 do
+			game:GetService("RunService").RenderStepped:Wait() 
+
+			if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
+				speed = speed+.5+(speed/maxspeed)
+				if speed > maxspeed then
+					speed = maxspeed
+				end
+			elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then
+				speed = speed-1
+				if speed < 0 then
+					speed = 0
+				end
+			end
+			if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
+				lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r}
+			elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
+			else
+				bv.velocity = Vector3.new(0,0,0)
+			end
+			--game.Players.LocalPlayer.Character.Animate.Disabled = true
+			bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0)
+		end
+		ctrl = {f = 0, b = 0, l = 0, r = 0}
+		lastctrl = {f = 0, b = 0, l = 0, r = 0}
+		speed = 0
+		bg:Destroy()
+		bv:Destroy()
+		plr.Character.Humanoid.PlatformStand = false
+		game.Players.LocalPlayer.Character.Animate.Disabled = false
+		tpwalking = false
+
+
+
+
+	else
+		local plr = game.Players.LocalPlayer
+		local UpperTorso = plr.Character.UpperTorso
+		local flying = true
+		local deb = true
+		local ctrl = {f = 0, b = 0, l = 0, r = 0}
+		local lastctrl = {f = 0, b = 0, l = 0, r = 0}
+		local maxspeed = 50
+		local speed = 0
+
+
+		local bg = Instance.new("BodyGyro", UpperTorso)
+		bg.P = 9e4
+		bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+		bg.cframe = UpperTorso.CFrame
+		local bv = Instance.new("BodyVelocity", UpperTorso)
+		bv.velocity = Vector3.new(0,0.1,0)
+		bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+		if nowe == true then
+			plr.Character.Humanoid.PlatformStand = true
+		end
+		while nowe == true or game:GetService("Players").LocalPlayer.Character.Humanoid.Health == 0 do
+			wait() 
+
+			if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
+				speed = speed+.5+(speed/maxspeed)
+				if speed > maxspeed then
+					speed = maxspeed
+				end
+			elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then
+				speed = speed-1
+				if speed < 0 then
+					speed = 0
+				end
+			end
+			if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
+				lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r}
+			elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then
+				bv.velocity = ((game.Workspace.CurrentCamera.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((game.Workspace.CurrentCamera.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - game.Workspace.CurrentCamera.CoordinateFrame.p))*speed
+			else
+				bv.velocity = Vector3.new(0,0,0)
+			end 
+
+			bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0)
+		end
+		ctrl = {f = 0, b = 0, l = 0, r = 0}
+		lastctrl = {f = 0, b = 0, l = 0, r = 0}
+		speed = 0
+		bg:Destroy()
+		bv:Destroy()
+		plr.Character.Humanoid.PlatformStand = false
+		game.Players.LocalPlayer.Character.Animate.Disabled = false
+		tpwalking = false
+
+
+
+	end
+
+
+
+
+
+end) 
+
+game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(char)
+	wait(0.7)
+	game.Players.LocalPlayer.Character.Humanoid.PlatformStand = false
+	game.Players.LocalPlayer.Character.Animate.Disabled = false 
+
+end)
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local AnimThiefFrame = Instance.new("Frame")
+AnimThiefFrame.Size = UDim2.new(0.22, 0,0.07, 0)
+AnimThiefFrame.Position = UDim2.new(0.2, 0,0.5, 0) -- Start off-screen
+AnimThiefFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+AnimThiefFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+AnimThiefFrame.BackgroundTransparency = 0.25
+AnimThiefFrame.Parent = Exploit
+AnimThiefFrame.Visible = false
+
+local ThieftLabel = Instance.new("TextLabel")
+ThieftLabel.Parent = AnimThiefFrame
+ThieftLabel.Position = UDim2.new(0.5, 0,0.25, 0)
+ThieftLabel.AnchorPoint = Vector2.new(0.5, 0)
+ThieftLabel.BackgroundTransparency = 1
+ThieftLabel.TextColor3 = Color3.fromRGB(72, 22, 198)
+ThieftLabel.Size = UDim2.new(1, 0,0.5, 0)
+ThieftLabel.TextScaled = true
+ThieftLabel.Font = Enum.Font.Merriweather
+
+local ThiefStroke = Instance.new("UIStroke")
+ThiefStroke.Color = Color3.fromRGB(72, 22, 198)
+ThiefStroke.Parent = AnimThiefFrame
+
+local AnimThief = Instance.new("TextButton")
+AnimThief.Size = UDim2.new(0.2, 0, 0.1, 0)
+AnimThief.Position = UDim2.new(0.5, 0, 0.2, 0) -- Position it under the underline in the middle
+AnimThief.AnchorPoint = Vector2.new(0.5, 0)
+AnimThief.BackgroundTransparency = 1
+AnimThief.Text = "AnimThief"
+AnimThief.TextColor3 = Color3.fromRGB(72, 22, 198)
+AnimThief.Font = Enum.Font.Merriweather
+AnimThief.TextSize = 26
+AnimThief.Parent = Frame
+
+local ThiefStrokeButton = Instance.new("UIStroke")
+ThiefStrokeButton.Color = Color3.fromRGB(0, 0, 0)
+ThiefStrokeButton.Parent = AnimThief
+ThiefStrokeButton.Enabled = false
+
+AnimThief.MouseButton1Click:connect(function()
+	if AnimThiefFrame.Visible == false then
+		AnimThiefFrame.Visible = true
+		ThiefStrokeButton.Enabled = true
+	else
+			AnimThiefFrame.Visible = false
+			ThiefStrokeButton.Enabled = false
+	end
+end)
+
+local function updateAnimationID()
+	local playingTracks = humanoid:GetPlayingAnimationTracks()
+	for _, track in playingTracks do
+		if track.IsPlaying then
+			ThieftLabel.Text = "Animation ID: " .. track.Animation.AnimationId
+			return
+		end
+	end
+	ThieftLabel.Text = "No Animation Playing"
+end
+
+local dragging = false
+local dragInput
+local startPos
+local startFramePos
+
+AnimThiefFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		startPos = input.Position
+		startFramePos = AnimThiefFrame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+AnimThiefFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+AnimThiefFrame.InputChanged:Connect(function(input)
+	if dragging and input == dragInput then
+		local delta = input.Position - startPos
+		AnimThiefFrame.Position = UDim2.new(startFramePos.X.Scale, startFramePos.X.Offset + delta.X, startFramePos.Y.Scale, startFramePos.Y.Offset + delta.Y)
+	end
+end)
+
+-- Connect the function to the animation played event
+humanoid.AnimationPlayed:Connect(updateAnimationID)
+
+local SpeedButton = Instance.new("TextButton")
+SpeedButton.Size = UDim2.new(0.2, 0, 0.1, 0)
+SpeedButton.Position = UDim2.new(0.95, 0, 0.2, 0) -- Position it under the underline in the right top corner
+SpeedButton.AnchorPoint = Vector2.new(1, 0)
+SpeedButton.BackgroundTransparency = 1
+SpeedButton.Text = "DoubleSpeed"
+SpeedButton.TextColor3 = Color3.fromRGB(72, 22, 198)
+SpeedButton.Font = Enum.Font.Merriweather
+SpeedButton.TextSize = 26
+SpeedButton.Parent = Frame
+
+SpeedStroke = Instance.new("UIStroke")
+SpeedStroke.Parent = SpeedButton
+SpeedStroke.Enabled = false
+
+local normalSpeed = humanoid.WalkSpeed
+local doubleSpeed = normalSpeed * 2
+local isDoubleSpeed = false
+
+SpeedButton.MouseButton1Click:Connect(function()
+	if isDoubleSpeed then
+		humanoid.WalkSpeed = normalSpeed
+		SpeedStroke.Enabled = false
+	else
+		humanoid.WalkSpeed = doubleSpeed
+		SpeedStroke.Enabled = true
+	end
+	isDoubleSpeed = not isDoubleSpeed
+end)
+
+local BUnderline = Instance.new("ImageLabel")
+BUnderline.Position = UDim2.fromScale(0.5, 0.75) 
+BUnderline.AnchorPoint = Vector2.new(0.5, 0) 
+BUnderline.Size = UDim2.fromScale(0.8, 0.1)
+BUnderline.ImageColor3 = Color3.fromRGB(72, 22, 198)
+BUnderline.BackgroundTransparency = 1
+BUnderline.Image = "rbxassetid://77874090896086"
+BUnderline.Parent = Frame
+
+local BTitle = Instance.new("TextLabel")
+BTitle.Position = UDim2.fromScale(0.5, 0.8)
+BTitle.AnchorPoint = Vector2.new(0.5, 0)
+BTitle.Size = UDim2.fromScale(1, 0.1)
+BTitle.BackgroundTransparency = 1
+BTitle.TextSize = 15
+BTitle.TextColor3 = Color3.fromRGB(72, 22, 198)
+BTitle.Font = Enum.Font.Merriweather
+BTitle.Text = "By: 7."
+BTitle.Parent = Frame
+
+local BTitle = Instance.new("TextButton")
+BTitle.Position = UDim2.fromScale(0.5, 0.9)
+BTitle.AnchorPoint = Vector2.new(0.5, 0)
+BTitle.Size = UDim2.fromScale(1, 0.1)
+BTitle.BackgroundTransparency = 1
+BTitle.TextSize = 15
+BTitle.TextColor3 = Color3.fromRGB(72, 22, 198)
+BTitle.Font = Enum.Font.Merriweather
+BTitle.Text = "More To Come."
+BTitle.Parent = Frame
+
+local BTitleStroke = Instance.new("UIStroke")
+BTitleStroke.Color = Color3.fromRGB(3, 91, 255)
+BTitleStroke.Parent = BTitle
+BTitleStroke.Transparency = 1
+
+-- Discord invite link
+local discordLink = "https://discord.gg/ErTAVgpwy9" -- Replace with your actual Discord invite link
+
+-- Function to copy the link and show notification
+local function onButtonClick()
+	-- Copy the link to the clipboard
+	setclipboard(discordLink) -- This function is available in Roblox Studio for copying to clipboard
+
+	-- Show notification
+	game:GetService("StarterGui"):SetCore("SendNotification", {
+		Title = "Link Copied",
+		Text = "Copied Link",
+		Duration = 2 -- Duration in seconds
+	})
+end
+
+-- Connect the button click event to the function
+BTitle.MouseButton1Click:Connect(onButtonClick)
+
+
+
+-- Fly functionality
+local flying = false
+local bodyVelocity
+
+-- Tween the frame to move upwards
+local function tweenFrame()
+	local tween = TweenService:Create(Frame, TweenInfo.new(3), {Position = UDim2.fromScale(0.5, 0.5)})
+	tween:Play()
+end
+
+-- Call the tween function after a short delay
+wait(0.5) -- Optional delay before starting the tween
+tweenFrame()
+
+local function onExitButtonClick()
+	local tween = TweenService:Create(Frame, TweenInfo.new(4), {Position = UDim2.fromScale(0.5, 1.5)})
+	local tweentwo = TweenService:Create(AnimThiefFrame, TweenInfo.new(4), {Position = UDim2.fromScale(0.5, 1.5)})
+	tween:Play()
+	tweentwo:Play()
+	tween.Completed:Wait() 
+	tweentwo.Completed:Wait()
+	Exploit:Destroy()
+end
+
+Exit.MouseButton1Click:Connect(onExitButtonClick)
+
+local function TextTween()
+	local fadeOutTween = TweenService:Create(Title, TweenInfo.new(1), {TextTransparency = 1})
+	fadeOutTween:Play()
+	fadeOutTween.Completed:Wait()
+
+	Title.Text = "Welcome, " .. Player.Name
+
+	local fadeInTween = TweenService:Create(Title, TweenInfo.new(1), {TextTransparency = 0})
+	fadeInTween:Play()
+end
+
+wait(2)
+TextTween()
+
+local dragging = false
+local dragInput
+local startPos
+local startFramePos
+
+Frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		startPos = input.Position
+		startFramePos = Frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input == dragInput then
+		local delta = input.Position - startPos
+		Frame.Position = UDim2.new(startFramePos.X.Scale, startFramePos.X.Offset + delta.X, startFramePos.Y.Scale, startFramePos.Y.Offset + delta.Y)
+	end
+end)
+
