@@ -574,7 +574,7 @@ end)
 
 local FalseCanTouch = Instance.new("TextButton")
 FalseCanTouch.Size = UDim2.new(0.2, 0, 0.1, 0)
-FalseCanTouch.Position = UDim2.new(0.90, 0, 0.63, 0) -- Position it under the underline in the middle
+FalseCanTouch.Position = UDim2.new(0.85, 0, 0.63, 0) -- Position it under the underline in the middle
 FalseCanTouch.AnchorPoint = Vector2.new(0.5, 0)
 FalseCanTouch.BackgroundTransparency = 1
 FalseCanTouch.Text = "FalseCanTouch"
@@ -734,3 +734,4 @@ UserInputService.InputChanged:Connect(function(input)
 		Frame.Position = UDim2.new(startFramePos.X.Scale, startFramePos.X.Offset + delta.X, startFramePos.Y.Scale, startFramePos.Y.Offset + delta.Y)
 	end
 end)
+
