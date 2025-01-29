@@ -383,6 +383,8 @@ end)
 -- Connect the function to the animation played event
 humanoid.AnimationPlayed:Connect(updateAnimationID)
 
+local RunService = game:GetService("RunService")
+
 local SpeedButton = Instance.new("TextButton")
 SpeedButton.Size = UDim2.new(0.2, 0, 0.1, 0)
 SpeedButton.Position = UDim2.new(0.95, 0, 0.2, 0) -- Position it under the underline in the right top corner
@@ -394,7 +396,7 @@ SpeedButton.Font = Enum.Font.Merriweather
 SpeedButton.TextSize = 26
 SpeedButton.Parent = Frame
 
-SpeedStroke = Instance.new("UIStroke")
+local SpeedStroke = Instance.new("UIStroke")
 SpeedStroke.Parent = SpeedButton
 SpeedStroke.Enabled = false
 
@@ -411,6 +413,13 @@ SpeedButton.MouseButton1Click:Connect(function()
 		SpeedStroke.Enabled = true
 	end
 	isDoubleSpeed = not isDoubleSpeed
+end)
+
+-- Constantly check for speed changes
+RunService.Heartbeat:Connect(function()
+	if isDoubleSpeed and humanoid.WalkSpeed ~= doubleSpeed then
+		humanoid.WalkSpeed = doubleSpeed
+	end
 end)
 
 local NoClip = Instance.new("TextButton")
@@ -734,4 +743,3 @@ UserInputService.InputChanged:Connect(function(input)
 		Frame.Position = UDim2.new(startFramePos.X.Scale, startFramePos.X.Offset + delta.X, startFramePos.Y.Scale, startFramePos.Y.Offset + delta.Y)
 	end
 end)
-
