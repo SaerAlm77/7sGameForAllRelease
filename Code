@@ -121,7 +121,8 @@ local featureStates = {
 	canRotateEnabled = true,
 	sitEnabled = false,
 	chamsEnabled = false,
-	animationThiefEnabled = false
+	animationThiefEnabled = false,
+	antiTeleportEnabled = false
 }
 
 -- Fly system variables
@@ -1025,6 +1026,161 @@ end
 -- Keybind System
 local keybindConnections = {}
 
+-- Anti Teleport
+local antiTeleportLastSafeCFrame = nil
+local antiTeleportConnection = nil
+local antiTeleportCharacterConnection = nil
+local antiTeleportPropertyConnection = nil
+
+local ANTI_TELEPORT_DISTANCE = 8
+local ANTI_TELEPORT_VERTICAL_DISTANCE = 12
+local ANTI_TELEPORT_BUFFER_TIME = 0.12
+
+local antiTeleportIgnoreUntil = 0
+local antiTeleportInternalSet = false
+
+local function cleanupAntiTeleport()
+	if antiTeleportConnection then
+		antiTeleportConnection:Disconnect()
+		antiTeleportConnection = nil
+	end
+
+	if antiTeleportCharacterConnection then
+		antiTeleportCharacterConnection:Disconnect()
+		antiTeleportCharacterConnection = nil
+	end
+
+	if antiTeleportPropertyConnection then
+		antiTeleportPropertyConnection:Disconnect()
+		antiTeleportPropertyConnection = nil
+	end
+
+	antiTeleportLastSafeCFrame = nil
+	antiTeleportInternalSet = false
+end
+
+local function setAntiTeleportCFrame(rootPart, cf)
+	if not rootPart or not rootPart.Parent then
+		return
+	end
+
+	antiTeleportInternalSet = true
+	rootPart.CFrame = cf
+	rootPart.AssemblyLinearVelocity = Vector3.zero
+	rootPart.AssemblyAngularVelocity = Vector3.zero
+	task.defer(function()
+		antiTeleportInternalSet = false
+	end)
+end
+
+local function refreshAntiTeleportSafePosition()
+	local rootPart = getRootPart()
+	if rootPart then
+		antiTeleportLastSafeCFrame = rootPart.CFrame
+	end
+end
+
+local function startAntiTeleport()
+	cleanupAntiTeleport()
+
+	local function hookCharacter(character)
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+		if not humanoid or not rootPart then
+			return
+		end
+
+		antiTeleportLastSafeCFrame = rootPart.CFrame
+		antiTeleportIgnoreUntil = tick() + 1
+
+		if antiTeleportPropertyConnection then
+			antiTeleportPropertyConnection:Disconnect()
+			antiTeleportPropertyConnection = nil
+		end
+
+		antiTeleportPropertyConnection = rootPart:GetPropertyChangedSignal("CFrame"):Connect(function()
+			if not featureStates.antiTeleportEnabled then
+				return
+			end
+
+			if antiTeleportInternalSet then
+				return
+			end
+
+			if tick() < antiTeleportIgnoreUntil then
+				antiTeleportLastSafeCFrame = rootPart.CFrame
+				return
+			end
+
+			if not antiTeleportLastSafeCFrame then
+				antiTeleportLastSafeCFrame = rootPart.CFrame
+				return
+			end
+
+			local oldPos = antiTeleportLastSafeCFrame.Position
+			local newPos = rootPart.Position
+			local delta = newPos - oldPos
+
+			local horizontal = Vector3.new(delta.X, 0, delta.Z).Magnitude
+			local vertical = math.abs(delta.Y)
+
+			if horizontal > ANTI_TELEPORT_DISTANCE or vertical > ANTI_TELEPORT_VERTICAL_DISTANCE then
+				setAntiTeleportCFrame(rootPart, antiTeleportLastSafeCFrame)
+			end
+		end)
+
+		antiTeleportConnection = RunService.Heartbeat:Connect(function(dt)
+			if not featureStates.antiTeleportEnabled then
+				return
+			end
+
+			if not character.Parent or not rootPart.Parent then
+				return
+			end
+
+			if tick() < antiTeleportIgnoreUntil then
+				antiTeleportLastSafeCFrame = rootPart.CFrame
+				return
+			end
+
+			if not antiTeleportLastSafeCFrame then
+				antiTeleportLastSafeCFrame = rootPart.CFrame
+				return
+			end
+
+			local currentCFrame = rootPart.CFrame
+			local currentPos = currentCFrame.Position
+			local safePos = antiTeleportLastSafeCFrame.Position
+			local delta = currentPos - safePos
+
+			local horizontal = Vector3.new(delta.X, 0, delta.Z).Magnitude
+			local vertical = math.abs(delta.Y)
+
+			local velocity = rootPart.AssemblyLinearVelocity.Magnitude
+			local allowedDistance = math.max(ANTI_TELEPORT_DISTANCE, velocity * math.max(dt, 1/60) * 3)
+
+			if horizontal > allowedDistance or vertical > ANTI_TELEPORT_VERTICAL_DISTANCE then
+				setAntiTeleportCFrame(rootPart, antiTeleportLastSafeCFrame)
+				return
+			end
+
+			antiTeleportLastSafeCFrame = currentCFrame
+		end)
+	end
+
+	local character = getCharacter()
+	if character then
+		hookCharacter(character)
+	end
+
+	antiTeleportCharacterConnection = LocalPlayer.CharacterAdded:Connect(function(character)
+		task.wait(0.25)
+		if featureStates.antiTeleportEnabled then
+			startAntiTeleport()
+		end
+	end)
+end
+
 local function toggleFeature(featureName)
 	local state = featureStates[featureName]
 	local newState = not state
@@ -1042,6 +1198,15 @@ local function toggleFeature(featureName)
 			startFly()
 		else
 			cleanupFly()
+		end
+		
+	elseif featureName == "antiTeleportEnabled" then
+		if newState then
+			startAntiTeleport()
+			notify("Anti Teleport", "Anti teleport enabled.")
+		else
+			cleanupAntiTeleport()
+			notify("Anti Teleport", "Anti teleport disabled.")
 		end
 	elseif featureName == "noClipEnabled" then
 		setLockState("NOCLIP", newState)
@@ -1201,6 +1366,16 @@ CloseButton.Text = "X"
 CloseButton.TextColor3 = UI_CONFIG.Theme.Text
 CloseButton.TextSize = 18
 CloseButton.Parent = TitleBar
+
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.BackgroundTransparency = 1
+MinimizeButton.Font = Enum.Font.GothamBold
+MinimizeButton.Position = UDim2.new(1, -70, 0, 0)
+MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+MinimizeButton.Text = "-"
+MinimizeButton.TextColor3 = UI_CONFIG.Theme.Text
+MinimizeButton.TextSize = 18
+MinimizeButton.Parent = TitleBar
 
 local ContentContainer = Instance.new("Frame")
 ContentContainer.BackgroundTransparency = 1
@@ -1577,6 +1752,15 @@ createToggleButton(ButtonContainers["MOVEMENT"], "Fly", "FLY", function(enabled)
 	end
 end, false)
 
+createToggleButton(ButtonContainers["MOVEMENT"], "AntiTeleport", "ANTI TELEPORT", function(enabled)
+	featureStates.antiTeleportEnabled = enabled
+	if enabled then
+		startAntiTeleport()
+	else
+		cleanupAntiTeleport()
+	end
+end, false)
+
 createToggleButton(ButtonContainers["MOVEMENT"], "NoClip", "NOCLIP", function(enabled)
 	featureStates.noClipEnabled = enabled
 	setLockState("NOCLIP", enabled)
@@ -1606,10 +1790,6 @@ createToggleButton(ButtonContainers["MOVEMENT"], "DoubleSpeed", "DOUBLE SPEED", 
 		end
 	end
 end, false)
-
-createSlider(ButtonContainers["MOVEMENT"], "FlySpeedSlider", "Fly Speed", "FlySpeed", function(val)
-	notify("Fly Speed", "Set to " .. val)
-end)
 
 createSlider(ButtonContainers["MOVEMENT"], "DoubleSpeedSlider", "Double Speed Value", "DoubleSpeedValue", function(val)
 	if featureStates.doubleSpeedEnabled then
@@ -1802,6 +1982,35 @@ Footer.TextSize = 12
 Footer.TextXAlignment = Enum.TextXAlignment.Left
 Footer.Parent = MainFrame
 
+local minimized = false
+local expandedSize = MainFrame.Size
+local minimizedSize = UDim2.new(expandedSize.X.Scale, expandedSize.X.Offset, 0, 40)
+
+local function setMinimized(state)
+	minimized = state
+
+	local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+	if minimized then
+		ContentContainer.Visible = false
+		DiscordButton.Visible = false
+		Footer.Visible = false
+		MinimizeButton.Text = "+"
+
+		TweenService:Create(MainFrame, tweenInfo, {
+			Size = minimizedSize
+		}):Play()
+	else
+		ContentContainer.Visible = true
+		DiscordButton.Visible = true
+		Footer.Visible = true
+		MinimizeButton.Text = "_"
+
+		TweenService:Create(MainFrame, tweenInfo, {
+			Size = expandedSize
+		}):Play()
+	end
+end
 -- Animations and Drag
 local function animateIn()
 	local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -1820,6 +2029,10 @@ local function animateIn()
 	TweenService:Create(Title, TweenInfo.new(0.3), {
 		TextTransparency = 0
 	}):Play()
+	
+	local minimized = false
+	local expandedSize = MainFrame.Size
+	local minimizedSize = UDim2.new(expandedSize.X.Scale, expandedSize.X.Offset, 0, 40)
 end
 
 local function animateOut()
@@ -1866,10 +2079,13 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
+MinimizeButton.MouseButton1Click:Connect(function()
+	setMinimized(not minimized)
+end)
+
 CloseButton.MouseButton1Click:Connect(function()
 	animateOut()
 end)
-
 -- Character respawn handling
 LocalPlayer.CharacterAdded:Connect(function(character)
 	task.wait(0.2)
@@ -1946,5 +2162,4 @@ MainFrame:GetPropertyChangedSignal("Size"):Connect(function()
 	Shadow.Size = MainFrame.Size + UDim2.fromOffset(12, 12)
 end)
 
--- Initialize keybinds
 setupKeybinds()
